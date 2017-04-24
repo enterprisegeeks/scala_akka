@@ -1,27 +1,22 @@
 package com.example
 
-import java.util.concurrent.TimeUnit
-
-import akka.actor.{ActorSystem, PoisonPill, Props}
-import com.example.MyActor.Request
+import akka.actor.{ActorSystem}
+import akka.pattern.ask
 import com.example.propsandpath.ArgsActor._
 import com.example.propsandpath.ArgsActor
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-import akka.pattern.ask
-
 object Main extends App {
   val system = ActorSystem("MyActorSystem")
-  val myActor = system.actorOf(Props(classOf[ArgsActor], 34), "argsActor")
-  implicit val timeout:akka.util.Timeout = 3 seconds
+  // ? を使うためのスレッドプールとタイムアウトを暗黙的に宣言
   implicit val dispatcher = system.dispatcher
-
-  Props.apply()
-
+  implicit val timeout:akka.util.Timeout = 3 seconds
+  // ファクトリによるパラメータ付きの生成
+  val myActor = system.actorOf(ArgsActor.props(3), "argsActor")
+  // ?(askパターン)によってアクターにメッセージを渡し、帰ってくるまで待機。
   (myActor ? Input("hoge")).mapTo[String].foreach(x => println(x))
-
+  // 3秒後に終了
   Await.ready(system.terminate(), 3 seconds)
-
 }

@@ -1,6 +1,6 @@
 package com.example.propsandpath
 
-import akka.actor.{Actor, ActorLogging}
+import akka.actor.{Actor, ActorLogging, Props}
 import ArgsActor.Input
 
 // コンストラクタ引数有りのアクター。
@@ -20,4 +20,6 @@ class ArgsActor(val repeat:Int) extends Actor with ActorLogging {
 object ArgsActor {
   // このアクターで使用するメッセージクラスの定義
   case class Input(x:String)
+  // パラメータ付きのアクターを生成するファクトリ
+  def props(repeat:Int = 2):Props = Props(new ArgsActor(repeat))
 }
